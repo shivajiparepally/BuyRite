@@ -87,6 +87,9 @@ export default function Home() {
 
   const deals = useMemo(() => products.filter(onSale).slice(0, 8), [products]);
   const showDealsRail = !search && activeCategory == null && deals.length > 0;
+  // Home shows the hero + deals only until you actually pick a department or search —
+  // it doesn't dump the whole catalog by default.
+  const browsing = activeCategory != null || !!search;
   const activeName =
     activeCategory === "deals"
       ? "Deals"
@@ -142,7 +145,13 @@ export default function Home() {
       />
 
       <main className="max-w-6xl w-full mx-auto px-6 py-6 flex-1">
-        <PromoCarousel promos={promos} onJump={(catId) => selectCategory(catId)} />
+        {user && (
+          <h1 className="font-display text-2xl text-ink m-0 mb-4">
+            Welcome to Buy Rite, {user.first_name || user.username}!
+          </h1>
+        )}
+
+        {!browsing && <PromoCarousel promos={promos} onJump={(catId) => selectCategory(catId)} />}
 
         <div className="grid gap-3 sm:grid-cols-3 mt-4">
           {FEATURES.map((f) => (
@@ -184,20 +193,22 @@ export default function Home() {
               </section>
             )}
 
-            <section className="mt-8">
-              <div className="flex items-baseline justify-between mb-3">
-                <h2 className="font-display text-xl text-ink m-0">{activeName}</h2>
-                <span className="text-sm text-mute">{filtered.length} item{filtered.length === 1 ? "" : "s"}</span>
-              </div>
-              <div className="grid gap-4" style={gridStyle}>
-                {filtered.map((p, i) => (
-                  <ProductCard key={p.id} product={p} categoryIndex={i} onRequireAuth={requireAuth} />
-                ))}
-              </div>
-              {catalogLoaded && filtered.length === 0 && (
-                <p className="text-mute text-sm">No products match your search.</p>
-              )}
-            </section>
+            {browsing && (
+              <section className="mt-8">
+                <div className="flex items-baseline justify-between mb-3">
+                  <h2 className="font-display text-xl text-ink m-0">{activeName}</h2>
+                  <span className="text-sm text-mute">{filtered.length} item{filtered.length === 1 ? "" : "s"}</span>
+                </div>
+                <div className="grid gap-4" style={gridStyle}>
+                  {filtered.map((p, i) => (
+                    <ProductCard key={p.id} product={p} categoryIndex={i} onRequireAuth={requireAuth} />
+                  ))}
+                </div>
+                {catalogLoaded && filtered.length === 0 && (
+                  <p className="text-mute text-sm">No products match your search.</p>
+                )}
+              </section>
+            )}
           </>
         )}
       </main>

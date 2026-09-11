@@ -20,6 +20,6 @@ def send_otp_email(to_email, code, purpose):
         f"Your code is: {code}\n\n"
         f"Enter this in the app to {subject.lower()}.\n"
         f"It expires in 10 minutes. If you didn't request this, you can ignore this email.\n\n"
-        f"— North Brunswick Bottle Shop"
+        f"— Buy Rite Renaissance Spirits"
     )
     send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [to_email], fail_silently=False)

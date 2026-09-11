@@ -1,16 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { GlassWater } from "lucide-react";
 
 export function Footer({ categories = [], onCategory }) {
   return (
     <footer className="bg-ink text-cream mt-12">
       <div className="max-w-6xl mx-auto px-6 py-10 grid gap-8 md:grid-cols-4">
         <div>
-          <div className="flex items-center gap-2 font-display text-lg text-white">
-            <GlassWater size={20} className="text-orange" /> North Brunswick Bottle Shop
-          </div>
-          <p className="text-xs text-[#C9B4AC] mt-3 leading-relaxed">
+          <img src="/logo.png" alt="Buy Rite Renaissance Spirits" className="h-11 w-auto rounded-md mb-3" />
+          <p className="text-xs text-[#C9B4AC] leading-relaxed">
             1234 Route 27, North Brunswick, NJ 08902<br />
             (732) 555-0100<br />
             Order online — pay when you pick up.

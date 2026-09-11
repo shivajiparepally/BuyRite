@@ -1,6 +1,7 @@
 # Python
 __pycache__/
 *.pyc
+.venv
 .venv/
 venv/
 *.sqlite3
@@ -11,6 +12,7 @@ media/
 
 # Env
 .env
+.env.example
 
 # Node
 node_modules/

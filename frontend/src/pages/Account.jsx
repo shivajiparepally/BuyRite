@@ -4,6 +4,7 @@ import { ArrowLeft, User, ShieldCheck, Package, LogOut, CheckCircle2 } from "luc
 import client from "../api/client";
 import { useAuth, errMessage } from "../context/AuthContext";
 import { OtpModal } from "../components/OtpModal";
+import { ConfirmModal } from "../components/ConfirmModal";
 
 const TABS = [
   { id: "profile", label: "Profile", icon: User },
@@ -29,6 +30,7 @@ export default function Account() {
   const [tab, setTab] = useState("profile");
   const [toast, setToast] = useState(null);
   const [pending, setPending] = useState(null); // active OTP flow
+  const [confirmLogout, setConfirmLogout] = useState(false);
 
   const flash = (msg) => {
     setToast(msg);
@@ -41,13 +43,24 @@ export default function Account() {
     <div className="min-h-screen bg-[#fdf7f6]">
       <div className="bg-red-dark text-white px-6 py-4 flex items-center gap-3.5">
         <button onClick={() => navigate("/")} className="flex items-center gap-1.5 text-white">
-          <ArrowLeft size={17} /> Back to Store
+          <ArrowLeft size={17} />
         </button>
+        <img src="/logo.png" alt="Buy Rite Renaissance Spirits" className="h-8 w-auto rounded ml-2.5" />
         <h2 className="font-display m-0 ml-2.5 text-xl">My Account</h2>
-        <button onClick={() => { logout(); navigate("/"); }} className="ml-auto flex items-center gap-1.5 text-sm">
+        <button onClick={() => setConfirmLogout(true)} className="ml-auto flex items-center gap-1.5 text-sm">
           <LogOut size={15} /> Log out
         </button>
       </div>
+
+      <ConfirmModal
+        open={confirmLogout}
+        title="Log out?"
+        message="Are you sure you want to log out?"
+        confirmLabel="Yes, log out"
+        cancelLabel="No"
+        onConfirm={() => { setConfirmLogout(false); logout(); navigate("/"); }}
+        onCancel={() => setConfirmLogout(false)}
+      />
 
       {toast && (
         <div className="fixed top-3 left-1/2 -translate-x-1/2 z-50 bg-ink text-white px-4 py-2.5 rounded-lg text-sm flex items-center gap-2 shadow-lg">

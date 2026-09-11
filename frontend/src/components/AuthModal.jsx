@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { X, GlassWater, MailCheck } from "lucide-react";
+import { X, MailCheck } from "lucide-react";
 import { useAuth, errCode, errMessage } from "../context/AuthContext";
 import { OtpInput } from "./OtpInput";
 
@@ -72,9 +72,13 @@ export function AuthModal({ open, onClose, onSuccess, reason }) {
         <button onClick={onClose} className="absolute top-3 right-3 text-white/80">
           <X size={20} />
         </button>
-        <div className="mx-auto mb-4 w-12 h-12 rounded-full bg-orange flex items-center justify-center">
-          {mode === "verify" ? <MailCheck color="#fff" size={24} /> : <GlassWater color="#fff" size={24} />}
-        </div>
+        {mode === "verify" ? (
+          <div className="mx-auto mb-4 w-12 h-12 rounded-full bg-orange flex items-center justify-center">
+            <MailCheck color="#fff" size={24} />
+          </div>
+        ) : (
+          <img src="/logo.png" alt="Buy Rite Renaissance Spirits" className="mx-auto mb-4 h-14 w-auto rounded-lg" />
+        )}
         <h2 className="font-display text-xl mb-1">{title}</h2>
         <p className="text-xs text-[#E8B4A8] mb-5">
           {mode === "verify"

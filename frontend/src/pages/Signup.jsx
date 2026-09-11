@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { GlassWater } from "lucide-react";
 import { useAuth, errMessage } from "../context/AuthContext";
 
 export default function Signup() {
@@ -34,9 +33,7 @@ export default function Signup() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-red-dark px-5 py-10">
       <div className="max-w-sm w-full text-white text-center">
-        <div className="mx-auto mb-5 w-14 h-14 rounded-full bg-orange flex items-center justify-center">
-          <GlassWater color="#fff" size={28} />
-        </div>
+        <img src="/logo.png" alt="Buy Rite Renaissance Spirits" className="mx-auto mb-5 h-16 w-auto rounded-lg" />
         <h1 className="font-display text-2xl mb-2">Create Account</h1>
         <p className="text-xs text-[#E8B4A8] mb-6">You must be 21 or older to shop here.</p>
         <form onSubmit={submit} className="text-left space-y-3.5">

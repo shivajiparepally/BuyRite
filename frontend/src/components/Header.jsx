@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { Search, ShoppingCart, LogOut, User, MapPin } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Search, ShoppingCart, LogOut, User, MapPin, Settings } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
+import { ConfirmModal } from "./ConfirmModal";
 
 function todayHoursLabel(hours) {
   if (!hours?.length) return null;
@@ -25,7 +26,9 @@ export function Header({
 }) {
   const { user, logout } = useAuth();
   const { count } = useCart();
+  const navigate = useNavigate();
   const [focused, setFocused] = useState(false);
+  const [confirmLogout, setConfirmLogout] = useState(false);
 
   const suggestions = useMemo(() => {
     if (!search || !products) return [];
@@ -33,6 +36,12 @@ export function Header({
   }, [search, products]);
 
   const hoursLabel = todayHoursLabel(hours);
+
+  const doLogout = () => {
+    setConfirmLogout(false);
+    logout();
+    navigate("/");
+  };
 
   const navItem = (key, label, opts = {}) => {
     const active = activeCategory === key;
@@ -69,8 +78,8 @@ export function Header({
       {/* main bar */}
       <div className="bg-red-dark text-white">
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center gap-5">
-          <Link to="/" className="font-display text-xl font-bold whitespace-nowrap leading-tight">
-            North Brunswick<br className="hidden lg:block" /> Bottle Shop
+          <Link to="/" className="flex items-center shrink-0">
+            <img src="/logo.png" alt="Buy Rite Renaissance Spirits" className="h-12 w-auto rounded-md" />
           </Link>
 
           <div className="flex-1 relative">
@@ -105,10 +114,18 @@ export function Header({
 
           {user ? (
             <>
+              {user.is_staff && (
+                <button
+                  onClick={() => navigate("/admin")}
+                  className="flex items-center gap-1.5 border border-white/40 rounded-lg px-3 py-1.5 text-sm whitespace-nowrap"
+                >
+                  <Settings size={14} /> <span className="hidden md:inline">Admin</span>
+                </button>
+              )}
               <Link to="/account" className="flex items-center gap-1.5 text-sm whitespace-nowrap">
                 <User size={15} /> {user.first_name || user.username}
               </Link>
-              <button onClick={logout} className="flex items-center gap-1.5 text-sm">
+              <button onClick={() => setConfirmLogout(true)} className="flex items-center gap-1.5 text-sm">
                 <LogOut size={15} />
                 <span className="hidden md:inline">Logout</span>
               </button>
@@ -136,6 +153,16 @@ export function Header({
           </div>
         </nav>
       )}
+
+      <ConfirmModal
+        open={confirmLogout}
+        title="Log out?"
+        message="Are you sure you want to log out?"
+        confirmLabel="Yes, log out"
+        cancelLabel="No"
+        onConfirm={doLogout}
+        onCancel={() => setConfirmLogout(false)}
+      />
     </header>
   );
 }
