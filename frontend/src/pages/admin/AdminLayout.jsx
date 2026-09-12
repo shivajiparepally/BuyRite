@@ -17,7 +17,7 @@ export default function AdminLayout() {
         <button onClick={() => navigate("/")} className="flex items-center gap-1.5 bg-transparent border-none text-white">
           <ArrowLeft size={17} /> Back to Store
         </button>
-        <img src="/logo.png" alt="Buy Rite Renaissance Spirits" className="h-8 w-auto rounded ml-2.5" />
+        <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Buy Rite Renaissance Spirits" className="h-8 w-auto rounded ml-2.5" />
         <h2 className="font-display m-0 ml-2.5 text-xl">Admin Dashboard</h2>
       </div>
       <div className="flex gap-1.5 px-6 pt-4">

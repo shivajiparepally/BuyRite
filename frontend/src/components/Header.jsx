@@ -79,7 +79,7 @@ export function Header({
       <div className="bg-red-dark text-white">
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center gap-5">
           <Link to="/" className="flex items-center shrink-0">
-            <img src="/logo.png" alt="Buy Rite Renaissance Spirits" className="h-12 w-auto rounded-md" />
+            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Buy Rite Renaissance Spirits" className="h-12 w-auto rounded-md" />
           </Link>
 
           <div className="flex-1 relative">

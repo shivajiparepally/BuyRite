@@ -36,7 +36,7 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-red-dark px-5">
       <div className="max-w-sm w-full text-white text-center">
-        <img src="/logo.png" alt="Buy Rite Renaissance Spirits" className="mx-auto mb-5 h-16 w-auto rounded-lg" />
+        <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Buy Rite Renaissance Spirits" className="mx-auto mb-5 h-16 w-auto rounded-lg" />
         <h1 className="font-display text-2xl mb-6">Log In</h1>
         <form onSubmit={submit} className="text-left">
           <label className="text-xs text-[#E8B4A8]">Username</label>

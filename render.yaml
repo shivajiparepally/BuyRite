@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: buyrite-backend
+    runtime: python
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput"
+    startCommand: "bash -c \"python manage.py migrate --noinput && python manage.py ensure_admin && python manage.py seed_demo_data && gunicorn config.wsgi:application\""
+    healthCheckPath: /api/catalog/categories/
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: "buyrite-backend.onrender.com"
+      - key: CORS_ALLOWED_ORIGIN
+        value: "https://shivajiparepally.github.io"
+      # Fill these in on the Render dashboard after the Blueprint is created —
+      # never commit real secrets to this file.
+      - key: DJANGO_SECRET_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false

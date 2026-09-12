@@ -45,7 +45,7 @@ export default function Account() {
         <button onClick={() => navigate("/")} className="flex items-center gap-1.5 text-white">
           <ArrowLeft size={17} />
         </button>
-        <img src="/logo.png" alt="Buy Rite Renaissance Spirits" className="h-8 w-auto rounded ml-2.5" />
+        <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Buy Rite Renaissance Spirits" className="h-8 w-auto rounded ml-2.5" />
         <h2 className="font-display m-0 ml-2.5 text-xl">My Account</h2>
         <button onClick={() => setConfirmLogout(true)} className="ml-auto flex items-center gap-1.5 text-sm">
           <LogOut size={15} /> Log out

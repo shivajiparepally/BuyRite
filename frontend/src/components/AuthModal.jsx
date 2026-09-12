@@ -77,7 +77,7 @@ export function AuthModal({ open, onClose, onSuccess, reason }) {
             <MailCheck color="#fff" size={24} />
           </div>
         ) : (
-          <img src="/logo.png" alt="Buy Rite Renaissance Spirits" className="mx-auto mb-4 h-14 w-auto rounded-lg" />
+          <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Buy Rite Renaissance Spirits" className="mx-auto mb-4 h-14 w-auto rounded-lg" />
         )}
         <h2 className="font-display text-xl mb-1">{title}</h2>
         <p className="text-xs text-[#E8B4A8] mb-5">

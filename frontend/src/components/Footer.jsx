@@ -6,7 +6,7 @@ export function Footer({ categories = [], onCategory }) {
     <footer className="bg-ink text-cream mt-12">
       <div className="max-w-6xl mx-auto px-6 py-10 grid gap-8 md:grid-cols-4">
         <div>
-          <img src="/logo.png" alt="Buy Rite Renaissance Spirits" className="h-11 w-auto rounded-md mb-3" />
+          <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Buy Rite Renaissance Spirits" className="h-11 w-auto rounded-md mb-3" />
           <p className="text-xs text-[#C9B4AC] leading-relaxed">
             1234 Route 27, North Brunswick, NJ 08902<br />
             (732) 555-0100<br />
