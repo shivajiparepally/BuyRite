@@ -50,9 +50,30 @@ export default function Home() {
     action?.();
   };
 
+  // Set when a promo carousel slide has specific tagged products — the grid
+  // then shows exactly those instead of the slide's whole category.
+  const [promoFilter, setPromoFilter] = useState(null); // { ids: Set<number>, title: string } | null
+
   const selectCategory = (key) => {
+    setPromoFilter(null);
     setActiveCategory(key);
     setSearch("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleSearchChange = (value) => {
+    setPromoFilter(null);
+    setSearch(value);
+  };
+
+  const handlePromoJump = (promo) => {
+    if (promo.products && promo.products.length > 0) {
+      setPromoFilter({ ids: new Set(promo.products), title: promo.title });
+      setActiveCategory(null);
+      setSearch("");
+    } else {
+      selectCategory(promo.category);
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -74,6 +95,7 @@ export default function Home() {
   const onSale = (p) => p.variants?.[0]?.sale_price != null;
 
   const filtered = useMemo(() => {
+    if (promoFilter) return products.filter((p) => promoFilter.ids.has(p.id));
     return products.filter((p) => {
       if (activeCategory === "deals") {
         if (!onSale(p)) return false;
@@ -83,15 +105,16 @@ export default function Home() {
       if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
-  }, [products, activeCategory, search]);
+  }, [products, activeCategory, search, promoFilter]);
 
   const deals = useMemo(() => products.filter(onSale).slice(0, 8), [products]);
-  const showDealsRail = !search && activeCategory == null && deals.length > 0;
-  // Home shows the hero + deals only until you actually pick a department or search —
-  // it doesn't dump the whole catalog by default.
-  const browsing = activeCategory != null || !!search;
-  const activeName =
-    activeCategory === "deals"
+  const showDealsRail = !search && activeCategory == null && !promoFilter && deals.length > 0;
+  // Home shows the hero + deals only until you actually pick a department, search,
+  // or follow a promo — it doesn't dump the whole catalog by default.
+  const browsing = activeCategory != null || !!search || !!promoFilter;
+  const activeName = promoFilter
+    ? promoFilter.title
+    : activeCategory === "deals"
       ? "Deals"
       : categories.find((c) => c.id === activeCategory)?.name || "All Products";
 
@@ -136,7 +159,7 @@ export default function Home() {
       <Header
         products={products}
         search={search}
-        setSearch={setSearch}
+        setSearch={handleSearchChange}
         onCartClick={() => setCartOpen(true)}
         categories={categories}
         activeCategory={activeCategory}
@@ -151,7 +174,7 @@ export default function Home() {
           </h1>
         )}
 
-        {!browsing && <PromoCarousel promos={promos} onJump={(catId) => selectCategory(catId)} />}
+        {!browsing && <PromoCarousel promos={promos} onJump={handlePromoJump} />}
 
         <div className="grid gap-3 sm:grid-cols-3 mt-4">
           {FEATURES.map((f) => (

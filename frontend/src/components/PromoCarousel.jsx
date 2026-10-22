@@ -31,7 +31,7 @@ export function PromoCarousel({ promos, onJump }) {
         <h2 className="font-display text-3xl md:text-4xl leading-tight m-0 mb-2">{p.title}</h2>
         <p className="m-0 text-[#F7DDD5] text-sm md:text-base">{p.subtitle}</p>
         <button
-          onClick={() => onJump(p.category)}
+          onClick={() => onJump(p)}
           className="mt-6 inline-flex items-center gap-2 self-start bg-white text-red font-semibold text-sm rounded-full px-5 py-2.5 hover:bg-cream transition"
         >
           Shop now <ArrowRight size={16} />
