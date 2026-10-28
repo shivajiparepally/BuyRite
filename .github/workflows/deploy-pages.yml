@@ -36,9 +36,11 @@ jobs:
       - name: Build
         working-directory: frontend
         env:
-          # Points the live site at the Render backend. If your Render service
-          # ends up with a different name, update this URL to match.
-          VITE_API_URL: https://buyrite-backend.onrender.com/api
+          # Points the live site at the Render backend. "buyrite-backend" was
+          # already taken by an unrelated service, so Render assigned this
+          # suffixed hostname instead — check your Render service's own page
+          # if you ever recreate it, the suffix is random per deploy.
+          VITE_API_URL: https://buyrite-backend-mi2v.onrender.com/api
         run: npm run build
 
       - name: SPA fallback so client-side routes don't 404 on refresh/deep-link
