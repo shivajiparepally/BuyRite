@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { X, MailCheck } from "lucide-react";
 import { useAuth, errCode, errMessage } from "../context/AuthContext";
 import { OtpInput } from "./OtpInput";
+import { PasswordInput } from "./PasswordInput";
 
 const field = "w-full px-3.5 py-2.5 rounded-lg mt-1 text-ink";
 const labelCls = "text-xs text-[#E8B4A8]";
@@ -136,7 +137,7 @@ export function AuthModal({ open, onClose, onSuccess, reason }) {
 
             <div>
               <label className={labelCls}>Password</label>
-              <input type="password" value={form.password} onChange={set("password")} className={field} />
+              <PasswordInput value={form.password} onChange={set("password")} className={field} />
             </div>
 
             {error && <div className="bg-[#6E0A1B] rounded-lg p-3 text-sm">{error}</div>}

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { PasswordInput } from "../../components/PasswordInput";
 
 export default function AdminLogin() {
   const { user, login } = useAuth();
@@ -42,7 +43,7 @@ export default function AdminLogin() {
           <label className="text-xs text-[#E8B4A8]">Username</label>
           <input value={username} onChange={(e) => setUsername(e.target.value)} className="w-full px-3.5 py-2.5 rounded-lg mb-3.5 mt-1 text-ink" />
           <label className="text-xs text-[#E8B4A8]">Password</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-3.5 py-2.5 rounded-lg mb-4 mt-1 text-ink" />
+          <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-3.5 py-2.5 rounded-lg mb-4 mt-1 text-ink" />
           {error && <div className="bg-[#6E0A1B] rounded-lg p-3 text-sm mb-4">{error}</div>}
           <button disabled={loading} className="w-full py-3 rounded-lg bg-orange font-semibold disabled:opacity-60">
             {loading ? "Logging in..." : "Log In"}

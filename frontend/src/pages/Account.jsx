@@ -5,6 +5,7 @@ import client from "../api/client";
 import { useAuth, errMessage } from "../context/AuthContext";
 import { OtpModal } from "../components/OtpModal";
 import { ConfirmModal } from "../components/ConfirmModal";
+import { PasswordInput } from "../components/PasswordInput";
 
 const TABS = [
   { id: "profile", label: "Profile", icon: User },
@@ -40,7 +41,7 @@ export default function Account() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-[#fdf7f6]">
+    <div className="min-h-screen bg-[#fdf7f6] overflow-x-hidden">
       <div className="bg-red-dark text-white px-6 py-4 flex items-center gap-3.5">
         <button onClick={() => navigate("/")} className="flex items-center gap-1.5 text-white">
           <ArrowLeft size={17} />
@@ -68,13 +69,13 @@ export default function Account() {
         </div>
       )}
 
-      <div className="max-w-5xl mx-auto p-6 grid gap-6" style={{ gridTemplateColumns: "220px 1fr" }}>
-        <nav className="flex flex-col gap-1 h-max">
+      <div className="max-w-5xl mx-auto p-6 grid gap-6 grid-cols-1 sm:[grid-template-columns:220px_1fr]">
+        <nav className="flex sm:flex-col gap-1 h-max overflow-x-auto">
           {TABS.map((t) => (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm text-left ${
+              className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg text-sm text-left whitespace-nowrap shrink-0 ${
                 tab === t.id ? "bg-white border border-cream font-semibold text-red" : "text-ink"
               }`}
             >
@@ -222,10 +223,10 @@ function SecurityTab({ user, flash, startFlow, changePassword, changeUsername, c
     <>
       <Card title="Change password">
         <label className={labelCls}>Current password</label>
-        <input type="password" value={pw.current_password}
+        <PasswordInput value={pw.current_password}
           onChange={(e) => setPw({ ...pw, current_password: e.target.value })} className={inputCls} />
         <label className={`${labelCls} block mt-3`}>New password</label>
-        <input type="password" value={pw.new_password}
+        <PasswordInput value={pw.new_password}
           onChange={(e) => setPw({ ...pw, new_password: e.target.value })} className={inputCls} />
         {err.pw && <div className="text-red text-xs mt-2">{err.pw}</div>}
         <button
@@ -252,7 +253,7 @@ function SecurityTab({ user, flash, startFlow, changePassword, changeUsername, c
         <input value={uname.new_username}
           onChange={(e) => setUname({ ...uname, new_username: e.target.value })} className={inputCls} />
         <label className={`${labelCls} block mt-3`}>Current password</label>
-        <input type="password" value={uname.password}
+        <PasswordInput value={uname.password}
           onChange={(e) => setUname({ ...uname, password: e.target.value })} className={inputCls} />
         {err.uname && <div className="text-red text-xs mt-2">{err.uname}</div>}
         <button
@@ -279,7 +280,7 @@ function SecurityTab({ user, flash, startFlow, changePassword, changeUsername, c
         <input type="email" value={em.new_email}
           onChange={(e) => setEm({ ...em, new_email: e.target.value })} className={inputCls} />
         <label className={`${labelCls} block mt-3`}>Current password</label>
-        <input type="password" value={em.password}
+        <PasswordInput value={em.password}
           onChange={(e) => setEm({ ...em, password: e.target.value })} className={inputCls} />
         {err.em && <div className="text-red text-xs mt-2">{err.em}</div>}
         <button

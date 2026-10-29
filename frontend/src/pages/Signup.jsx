@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth, errMessage } from "../context/AuthContext";
+import { PasswordInput } from "../components/PasswordInput";
 
 export default function Signup() {
   const { register } = useAuth();
@@ -65,7 +66,7 @@ export default function Signup() {
           </div>
           <div>
             <label className="text-xs text-[#E8B4A8]">Password</label>
-            <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className="w-full px-3.5 py-2.5 rounded-lg mt-1 text-ink" />
+            <PasswordInput value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className="w-full px-3.5 py-2.5 rounded-lg mt-1 text-ink" />
           </div>
           {error && <div className="bg-[#6E0A1B] rounded-lg p-3 text-sm">{error}</div>}
           <button disabled={loading} className="w-full py-3 rounded-lg bg-orange font-semibold disabled:opacity-60">

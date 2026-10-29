@@ -149,7 +149,7 @@ export default function Home() {
   const gridStyle = { gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))" };
 
   return (
-    <div className="min-h-screen bg-[#fdf7f6] font-sans text-ink flex flex-col">
+    <div className="min-h-screen bg-[#fdf7f6] font-sans text-ink flex flex-col overflow-x-hidden">
       {banner && (
         <div className="fixed top-3 left-1/2 -translate-x-1/2 z-50 bg-red text-white px-5 py-3 rounded-lg flex items-center gap-2 shadow-lg">
           <Bell size={16} /> <span className="text-sm">{banner}</span>

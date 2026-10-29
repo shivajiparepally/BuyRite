@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { KeyRound } from "lucide-react";
 import { useAuth, errMessage } from "../context/AuthContext";
 import { OtpInput } from "../components/OtpInput";
+import { PasswordInput } from "../components/PasswordInput";
 
 export default function ForgotPassword() {
   const { requestPasswordReset, confirmPasswordReset } = useAuth();
@@ -79,8 +80,7 @@ export default function ForgotPassword() {
             <form onSubmit={reset} className="text-left">
               <OtpInput value={code} onChange={setCode} />
               <label className="text-xs text-[#E8B4A8] block mt-4">New password</label>
-              <input
-                type="password"
+              <PasswordInput
                 required
                 minLength={8}
                 value={newPassword}
