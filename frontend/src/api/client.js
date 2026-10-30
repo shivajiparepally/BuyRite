@@ -42,7 +42,10 @@ client.interceptors.response.use(
       } catch (refreshError) {
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
-        window.location.href = "/login";
+        // Hard redirect (bypasses the router entirely), so it has to build the
+        // full path itself: the deployed base path (e.g. /BuyRite/) plus the
+        // #/ hash route the app actually uses.
+        window.location.href = `${import.meta.env.BASE_URL}#/login`;
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

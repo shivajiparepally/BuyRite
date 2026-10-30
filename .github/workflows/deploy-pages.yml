@@ -43,9 +43,6 @@ jobs:
           VITE_API_URL: https://buyrite-backend-mi2v.onrender.com/api
         run: npm run build
 
-      - name: SPA fallback so client-side routes don't 404 on refresh/deep-link
-        run: cp frontend/dist/index.html frontend/dist/404.html
-
       - uses: actions/upload-pages-artifact@v3
         with:
           path: frontend/dist
