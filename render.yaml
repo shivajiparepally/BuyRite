@@ -22,6 +22,15 @@ services:
         value: "*"
       - key: CORS_ALLOWED_ORIGIN
         value: "https://shivajiparepally.github.io"
+      # Not secret - same for any Gmail SMTP sender - set directly here.
+      - key: EMAIL_BACKEND
+        value: "django.core.mail.backends.smtp.EmailBackend"
+      - key: EMAIL_HOST
+        value: "smtp.gmail.com"
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_USE_TLS
+        value: "True"
       # Fill these in on the Render dashboard after the Blueprint is created —
       # never commit real secrets to this file.
       - key: DJANGO_SECRET_KEY
@@ -31,4 +40,10 @@ services:
       - key: ADMIN_USERNAME
         sync: false
       - key: ADMIN_PASSWORD
+        sync: false
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
         sync: false
