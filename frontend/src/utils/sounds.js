@@ -1,6 +1,7 @@
-// Small synthesized sound effects (Web Audio API — no audio files to host,
-// same technique the admin "new order" beep already uses). Each function is
-// safe to call from anywhere; it no-ops quietly if audio isn't available.
+// Small synthesized sound effects (Web Audio API — no audio files to host or
+// license, same technique the admin "new order" beep already uses). Each
+// function is safe to call from anywhere; it no-ops quietly if audio isn't
+// available.
 
 let ctx = null;
 function getCtx() {
@@ -15,71 +16,102 @@ function getCtx() {
   }
 }
 
-function noiseBuffer(audioCtx, seconds) {
-  const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * seconds, audioCtx.sampleRate);
-  const data = buffer.getChannelData(0);
-  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
-  return buffer;
-}
-
-/** A cork/cap "pop" + brief fizz — played when an item is added to the cart. */
-export function playBottleOpen() {
-  const audioCtx = getCtx();
-  if (!audioCtx) return;
-  const now = audioCtx.currentTime;
-
-  // the "pop": a quick downward pitch sweep with a sharp gain envelope
+function metallicTick(audioCtx, time, { freq = 1000, gain = 0.2, decay = 0.06 } = {}) {
   const osc = audioCtx.createOscillator();
-  const popGain = audioCtx.createGain();
+  const g = audioCtx.createGain();
   osc.type = "triangle";
-  osc.frequency.setValueAtTime(900, now);
-  osc.frequency.exponentialRampToValueAtTime(110, now + 0.07);
-  popGain.gain.setValueAtTime(0.0001, now);
-  popGain.gain.exponentialRampToValueAtTime(0.35, now + 0.008);
-  popGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
-  osc.connect(popGain).connect(audioCtx.destination);
-  osc.start(now);
-  osc.stop(now + 0.1);
-
-  // the "fizz": filtered noise tailing off
-  const noise = audioCtx.createBufferSource();
-  noise.buffer = noiseBuffer(audioCtx, 0.35);
-  const filter = audioCtx.createBiquadFilter();
-  filter.type = "bandpass";
-  filter.frequency.value = 3500;
-  filter.Q.value = 0.7;
-  const fizzGain = audioCtx.createGain();
-  fizzGain.gain.setValueAtTime(0.0001, now + 0.02);
-  fizzGain.gain.exponentialRampToValueAtTime(0.1, now + 0.05);
-  fizzGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
-  noise.connect(filter).connect(fizzGain).connect(audioCtx.destination);
-  noise.start(now + 0.02);
-  noise.stop(now + 0.4);
+  osc.frequency.setValueAtTime(freq, time);
+  osc.frequency.exponentialRampToValueAtTime(freq * 0.6, time + decay);
+  g.gain.setValueAtTime(0.0001, time);
+  g.gain.exponentialRampToValueAtTime(gain, time + 0.004);
+  g.gain.exponentialRampToValueAtTime(0.0001, time + decay);
+  osc.connect(g).connect(audioCtx.destination);
+  osc.start(time);
+  osc.stop(time + decay + 0.02);
 }
 
-/** A little glass-clink "cheers" — played once an order is successfully placed. */
-export function playCheers() {
+function glassClink(audioCtx, time, { freq = 2600, gain = 0.18, decay = 0.45 } = {}) {
+  const osc = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  osc.type = "sine";
+  osc.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, time);
+  g.gain.exponentialRampToValueAtTime(gain, time + 0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001, time + decay);
+  osc.connect(g).connect(audioCtx.destination);
+  osc.start(time);
+  osc.stop(time + decay + 0.05);
+}
+
+/**
+ * Bottle cap flicked off, then clattering and bouncing on the ground —
+ * played when an item is added to the cart.
+ */
+export function playCapPop() {
   const audioCtx = getCtx();
   if (!audioCtx) return;
   const now = audioCtx.currentTime;
-  // a handful of bright, slightly-detuned tones staggered like clinking glasses
-  const clinks = [
-    { freq: 2600, at: 0 },
-    { freq: 3100, at: 0.06 },
-    { freq: 2850, at: 0.1 },
-    { freq: 3400, at: 0.16 },
-  ];
-  clinks.forEach(({ freq, at }) => {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = "sine";
-    osc.frequency.value = freq;
-    const t = now + at;
-    gain.gain.setValueAtTime(0.0001, t);
-    gain.gain.exponentialRampToValueAtTime(0.18, t + 0.01);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
-    osc.connect(gain).connect(audioCtx.destination);
-    osc.start(t);
-    osc.stop(t + 0.55);
-  });
+
+  // the cap flicking off: a sharp metallic snap
+  metallicTick(audioCtx, now, { freq: 2200, gain: 0.3, decay: 0.03 });
+
+  // the cap hitting the ground and bouncing to a stop: a series of
+  // metallic taps, getting quieter and closer together (bounce physics)
+  let t = now + 0.07;
+  let gap = 0.09;
+  let gain = 0.22;
+  for (let i = 0; i < 7; i++) {
+    metallicTick(audioCtx, t, { freq: 1500 - i * 60, gain, decay: 0.045 });
+    t += gap;
+    gap *= 0.72; // bounces land closer together as energy dissipates
+    gain *= 0.72;
+  }
+
+  // a brief metallic roll/settle as it spins out
+  const noise = audioCtx.createBufferSource();
+  const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.25, audioCtx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+  noise.buffer = buf;
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = "highpass";
+  filter.frequency.value = 2000;
+  const rollGain = audioCtx.createGain();
+  rollGain.gain.setValueAtTime(0.06, t);
+  rollGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.25);
+  noise.connect(filter).connect(rollGain).connect(audioCtx.destination);
+  noise.start(t);
+  noise.stop(t + 0.26);
+}
+
+/**
+ * Bottles jostling and clinking together, like carrying a full bag —
+ * played right after an order is placed.
+ */
+export function playBagClink() {
+  const audioCtx = getCtx();
+  if (!audioCtx) return;
+  const now = audioCtx.currentTime;
+  const count = 13;
+  for (let i = 0; i < count; i++) {
+    const t = now + Math.random() * 1.7;
+    const freq = 1700 + Math.random() * 1800;
+    glassClink(audioCtx, t, { freq, gain: 0.08 + Math.random() * 0.1, decay: 0.3 + Math.random() * 0.25 });
+  }
+}
+
+/**
+ * A fuller group "cheers" — several whiskey glasses clinking together at
+ * once — played when the customer clicks the cheers button.
+ */
+export function playGroupCheers() {
+  const audioCtx = getCtx();
+  if (!audioCtx) return;
+  const now = audioCtx.currentTime;
+  const glasses = 7;
+  for (let i = 0; i < glasses; i++) {
+    const t = now + Math.random() * 0.22; // all roughly at once, like a group toast
+    const freq = 2200 + Math.random() * 1400;
+    glassClink(audioCtx, t, { freq, gain: 0.16 + Math.random() * 0.08, decay: 0.6 + Math.random() * 0.3 });
+  }
 }

@@ -5,7 +5,7 @@ import { PriceTag } from "./PriceTag";
 import { SubstitutionModal } from "./SubstitutionModal";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
-import { playBottleOpen } from "../utils/sounds";
+import { playCapPop } from "../utils/sounds";
 
 export function ProductCard({ product, categoryIndex, onRequireAuth }) {
   const { addItem, changeQty, removeItem, itemForVariant } = useCart();
@@ -23,7 +23,7 @@ export function ProductCard({ product, categoryIndex, onRequireAuth }) {
   const save = variant.sale_price ? Number(variant.price) - Number(variant.sale_price) : 0;
 
   const pop = () => {
-    playBottleOpen();
+    playCapPop();
     setPopped(true);
     setTimeout(() => setPopped(false), 220);
   };
