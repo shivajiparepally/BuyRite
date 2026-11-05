@@ -5,12 +5,14 @@ import { PriceTag } from "./PriceTag";
 import { SubstitutionModal } from "./SubstitutionModal";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import { playBottleOpen } from "../utils/sounds";
 
 export function ProductCard({ product, categoryIndex, onRequireAuth }) {
   const { addItem, changeQty, removeItem, itemForVariant } = useCart();
   const { user } = useAuth();
   const [showSub, setShowSub] = useState(false);
   const [imgFailed, setImgFailed] = useState(false);
+  const [popped, setPopped] = useState(false);
   const variant = product.variants?.[0];
   if (!variant) return null;
   const outOfStock = !variant.in_stock;
@@ -20,20 +22,38 @@ export function ProductCard({ product, categoryIndex, onRequireAuth }) {
   const slug = product.category_name?.toLowerCase().replace(/[^a-z]+/g, "-");
   const save = variant.sale_price ? Number(variant.price) - Number(variant.sale_price) : 0;
 
-  const doAdd = () => addItem(variant, product, null);
+  const pop = () => {
+    playBottleOpen();
+    setPopped(true);
+    setTimeout(() => setPopped(false), 220);
+  };
+
+  const doAdd = () => {
+    addItem(variant, product, null);
+    pop();
+  };
   const handleAdd = () => {
     if (outOfStock) return setShowSub(true);
     if (!user) return onRequireAuth?.(doAdd);
     doAdd();
   };
-  const inc = () => (line ? changeQty(line.cartId, 1) : handleAdd());
+  const inc = () => {
+    if (!line) return handleAdd();
+    changeQty(line.cartId, 1);
+    pop();
+  };
   const dec = () => {
     if (!line) return;
     qty <= 1 ? removeItem(line.cartId) : changeQty(line.cartId, -1);
   };
 
   return (
-    <div className="group bg-white border border-cream rounded-xl overflow-hidden flex flex-col transition hover:shadow-lg hover:-translate-y-0.5">
+    <div
+      className={`group bg-white border border-cream rounded-xl overflow-hidden flex flex-col transition hover:shadow-lg hover:-translate-y-0.5 ${
+        popped ? "scale-[1.03]" : "scale-100"
+      }`}
+      style={{ transition: "transform 180ms ease-out" }}
+    >
       <div className="relative aspect-[4/5] bg-cream/40 flex items-center justify-center overflow-hidden border-b border-cream">
         {product.image_url && !imgFailed ? (
           <img
@@ -76,18 +96,18 @@ export function ProductCard({ product, categoryIndex, onRequireAuth }) {
           <div className="mt-2">
             {!outOfStock && qty > 0 ? (
               <div className="flex items-center justify-between bg-red text-white rounded-lg px-2 py-1.5">
-                <button onClick={dec} aria-label="Decrease quantity" className="w-8 h-7 flex items-center justify-center">
+                <button onClick={dec} aria-label="Decrease quantity" className="w-8 h-7 flex items-center justify-center transition-transform active:scale-90">
                   <Minus size={15} />
                 </button>
                 <span className="text-sm font-semibold tabular-nums">{qty} in cart</span>
-                <button onClick={inc} aria-label="Increase quantity" className="w-8 h-7 flex items-center justify-center">
+                <button onClick={inc} aria-label="Increase quantity" className="w-8 h-7 flex items-center justify-center transition-transform active:scale-90">
                   <Plus size={15} />
                 </button>
               </div>
             ) : (
               <button
                 onClick={handleAdd}
-                className={`w-full py-2.5 rounded-lg text-sm font-semibold transition ${
+                className={`w-full py-2.5 rounded-lg text-sm font-semibold transition active:scale-95 ${
                   outOfStock ? "bg-cream text-red hover:bg-cream/70" : "bg-red text-white hover:bg-red-dark"
                 }`}
               >

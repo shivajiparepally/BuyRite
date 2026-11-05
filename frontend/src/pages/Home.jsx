@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Bell, Truck, Store, Clock } from "lucide-react";
+import { Truck, Store, Clock } from "lucide-react";
 import client from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
@@ -9,6 +9,7 @@ import { ProductCard } from "../components/ProductCard";
 import { CartDrawer } from "../components/CartDrawer";
 import { AuthModal } from "../components/AuthModal";
 import { Footer } from "../components/Footer";
+import { OrderCelebration } from "../components/OrderCelebration";
 
 const FEATURES = [
   { icon: Store, title: "Order online, pay at pickup", body: "No card needed up front — settle up at the counter." },
@@ -138,7 +139,6 @@ export default function Home() {
       clear();
       setCartOpen(false);
       setBanner(`Order #${data.id} submitted — pay at pickup (${schedule}).`);
-      setTimeout(() => setBanner(null), 4500);
     } catch (e) {
       setError(e.response?.data ? JSON.stringify(e.response.data) : "Something went wrong submitting the order.");
     } finally {
@@ -150,11 +150,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#fdf7f6] font-sans text-ink flex flex-col overflow-x-hidden">
-      {banner && (
-        <div className="fixed top-3 left-1/2 -translate-x-1/2 z-50 bg-red text-white px-5 py-3 rounded-lg flex items-center gap-2 shadow-lg">
-          <Bell size={16} /> <span className="text-sm">{banner}</span>
-        </div>
-      )}
+      {banner && <OrderCelebration message={banner} onDone={() => setBanner(null)} />}
 
       <Header
         products={products}
