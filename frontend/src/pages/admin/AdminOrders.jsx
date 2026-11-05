@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Bell } from "lucide-react";
 import client from "../../api/client";
-
-const STATUS_FLOW = ["new", "preparing", "ready", "completed"];
-const STATUS_LABEL = { new: "New", preparing: "Preparing", ready: "Ready", completed: "Completed", cancelled: "Cancelled" };
+import { OrderItemsList } from "../../components/admin/OrderItemsList";
+import { STATUS_FLOW, STATUS_LABEL } from "../../components/admin/orderStatus";
 
 function useBeep() {
   const ctxRef = useRef(null);
@@ -29,6 +29,7 @@ function useBeep() {
 }
 
 export default function AdminOrders() {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [showArchived, setShowArchived] = useState(false);
   const [banner, setBanner] = useState(null);
@@ -86,16 +87,21 @@ export default function AdminOrders() {
         <div key={o.id} className="border border-cream rounded-lg p-3.5 mb-2.5">
           <div className="flex justify-between mb-2">
             <div>
-              <strong>Order #{o.id}</strong>
+              <button
+                onClick={() => navigate(`/admin/users/${o.customer}`)}
+                className="font-semibold text-ink hover:text-red hover:underline"
+              >
+                {o.customer_username}
+              </button>
+              <span className="text-mute text-[11px] ml-2">Order #{o.id}</span>
               <span className="text-mute text-xs ml-2.5">{new Date(o.created_at).toLocaleString()}</span>
               <div className="text-xs mt-1">
-                <span className="text-ink">{o.customer_username}</span>
                 {o.customer_phone ? (
-                  <a href={`tel:${o.customer_phone}`} className="ml-2 text-red font-semibold">
+                  <a href={`tel:${o.customer_phone}`} className="text-red font-semibold">
                     📞 {o.customer_phone}
                   </a>
                 ) : (
-                  <span className="ml-2 text-mute">no phone on file</span>
+                  <span className="text-mute">no phone on file</span>
                 )}
               </div>
             </div>
@@ -103,25 +109,7 @@ export default function AdminOrders() {
               {STATUS_LABEL[o.status]}
             </span>
           </div>
-          <ul className="list-none pl-0 my-2 border-y border-cream divide-y divide-cream">
-            {o.items.map((i) => (
-              <li key={i.id} className="flex justify-between py-1.5 text-xs">
-                <span className="text-ink">
-                  {i.quantity}× {i.product_name}
-                  <span className="text-mute"> · {i.size}</span>
-                  {i.substitution_choice && (
-                    <span className="text-orange">
-                      {" "}· {i.substitution_choice === "substitute" ? "may substitute" : "call before substituting"}
-                    </span>
-                  )}
-                </span>
-                <span className="text-mute whitespace-nowrap ml-3">${Number(i.line_total).toFixed(2)}</span>
-              </li>
-            ))}
-          </ul>
-          <div className="text-xs text-mute mb-2">
-            Pickup {o.schedule} · <span className="text-ink font-semibold">total ${Number(o.total).toFixed(2)}</span>
-          </div>
+          <OrderItemsList order={o} />
           <div className="flex gap-2 flex-wrap">
             {!showArchived && STATUS_FLOW.map((s) => (
               <button

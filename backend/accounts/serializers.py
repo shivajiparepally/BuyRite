@@ -73,7 +73,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = [
             "id", "username", "email", "first_name", "last_name",
             "date_of_birth", "phone_number", "email_verified",
-            "is_staff", "is_age_verified",
+            "is_staff", "is_age_verified", "date_joined",
         ]
 
     def get_is_staff(self, obj):

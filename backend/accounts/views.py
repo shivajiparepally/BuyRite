@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
@@ -7,6 +8,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .models import EmailOTP
 from .otp import issue_and_send, verify_code
+from .permissions import IsConfiguredAdmin
 from .serializers import (
     ChangeEmailRequestSerializer,
     ChangePasswordConfirmSerializer,
@@ -135,6 +137,17 @@ class ProfileView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(UserSerializer(request.user).data)
+
+
+class AdminUserListView(generics.ListAPIView):
+    """Admin-only customer list (no password field — UserSerializer never
+    includes it). Excludes the admin's own account."""
+
+    permission_classes = [IsConfiguredAdmin]
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        return User.objects.exclude(username=settings.ADMIN_USERNAME).order_by("-date_joined")
 
 
 # ---- OTP-gated credential changes ---------------------------------------

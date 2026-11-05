@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 
 const TABS = [
   { to: "/admin/orders", label: "Orders" },
+  { to: "/admin/users", label: "Customers" },
   { to: "/admin/products", label: "Products" },
   { to: "/admin/promotions", label: "Promotions" },
   { to: "/admin/hours", label: "Store Hours" },
