@@ -11,6 +11,7 @@ import { AuthModal } from "../components/AuthModal";
 import { Footer } from "../components/Footer";
 import { OrderCelebration } from "../components/OrderCelebration";
 import { FilterBar } from "../components/FilterBar";
+import { Reveal } from "../components/Reveal";
 
 const FEATURES = [
   { icon: Store, title: "Order online, pay at pickup", body: "No card needed up front — settle up at the counter." },
@@ -210,14 +211,16 @@ export default function Home() {
         {!browsing && <PromoCarousel promos={promos} onJump={handlePromoJump} />}
 
         <div className="grid gap-3 sm:grid-cols-3 mt-4">
-          {FEATURES.map((f) => (
-            <div key={f.title} className="bg-white border border-cream rounded-xl p-4 flex gap-3">
-              <f.icon size={20} className="text-red shrink-0 mt-0.5" />
-              <div>
-                <div className="text-sm font-semibold text-ink">{f.title}</div>
-                <div className="text-xs text-mute leading-relaxed">{f.body}</div>
+          {FEATURES.map((f, i) => (
+            <Reveal key={f.title} delay={i * 0.08}>
+              <div className="bg-white border border-cream rounded-xl p-4 flex gap-3">
+                <f.icon size={20} className="text-red shrink-0 mt-0.5" />
+                <div>
+                  <div className="text-sm font-semibold text-ink">{f.title}</div>
+                  <div className="text-xs text-mute leading-relaxed">{f.body}</div>
+                </div>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
 
@@ -232,21 +235,23 @@ export default function Home() {
         ) : (
           <>
             {showDealsRail && (
-              <section className="mt-8">
-                <div className="flex items-baseline justify-between mb-3">
-                  <h2 className="font-display text-xl text-ink m-0">On Sale Now</h2>
-                  <button onClick={() => selectCategory("deals")} className="text-sm text-red font-semibold">
-                    See all deals
-                  </button>
-                </div>
-                <div className="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1">
-                  {deals.map((p, i) => (
-                    <div key={p.id} className="w-[210px] shrink-0">
-                      <ProductCard product={p} categoryIndex={i} onRequireAuth={requireAuth} />
-                    </div>
-                  ))}
-                </div>
-              </section>
+              <Reveal>
+                <section className="mt-8">
+                  <div className="flex items-baseline justify-between mb-3">
+                    <h2 className="font-display text-xl text-ink m-0">On Sale Now</h2>
+                    <button onClick={() => selectCategory("deals")} className="text-sm text-red font-semibold">
+                      See all deals
+                    </button>
+                  </div>
+                  <div className="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1">
+                    {deals.map((p, i) => (
+                      <Reveal key={p.id} delay={i * 0.06} className="w-[210px] shrink-0">
+                        <ProductCard product={p} categoryIndex={i} onRequireAuth={requireAuth} />
+                      </Reveal>
+                    ))}
+                  </div>
+                </section>
+              </Reveal>
             )}
 
             {browsing && (
@@ -265,7 +270,9 @@ export default function Home() {
                 />
                 <div className="grid gap-4" style={gridStyle}>
                   {filtered.map((p, i) => (
-                    <ProductCard key={p.id} product={p} categoryIndex={i} onRequireAuth={requireAuth} />
+                    <Reveal key={p.id} delay={(i % 8) * 0.05}>
+                      <ProductCard product={p} categoryIndex={i} onRequireAuth={requireAuth} />
+                    </Reveal>
                   ))}
                 </div>
                 {catalogLoaded && filtered.length === 0 && (
