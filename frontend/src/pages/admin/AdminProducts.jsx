@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Pencil, Trash2, Upload, ImageOff } from "lucide-react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Pencil, Trash2, Upload, ImageOff, Search } from "lucide-react";
 import client from "../../api/client";
 
 const fmt = (n) => `$${Number(n).toFixed(2)}`;
@@ -18,6 +18,12 @@ export default function AdminProducts() {
   const [uploadError, setUploadError] = useState(null);
   const fileRef = useRef(null);
 
+  // toolbar: search / category / size / sort
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [sizeFilter, setSizeFilter] = useState("");
+  const [sortBy, setSortBy] = useState("name");
+
   const load = async () => {
     const [cats, prods] = await Promise.all([
       client.get("/catalog/categories/"),
@@ -28,6 +34,32 @@ export default function AdminProducts() {
   };
 
   useEffect(() => { load(); }, []);
+
+  // Every size that exists anywhere in the catalog right now — grows
+  // automatically the moment a product with a new size is saved and the
+  // list reloads, since this is just derived from the live product list.
+  const allSizes = useMemo(() => {
+    const set = new Set();
+    products.forEach((p) => { const s = p.variants?.[0]?.size; if (s) set.add(s); });
+    return Array.from(set).sort();
+  }, [products]);
+
+  const visible = useMemo(() => {
+    let list = products.filter((p) => {
+      if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
+      if (categoryFilter && String(p.category) !== String(categoryFilter)) return false;
+      if (sizeFilter && p.variants?.[0]?.size !== sizeFilter) return false;
+      return true;
+    });
+    list = [...list].sort((a, b) => {
+      const va = a.variants?.[0], vb = b.variants?.[0];
+      if (sortBy === "price-asc") return (va ? Number(va.price) : 0) - (vb ? Number(vb.price) : 0);
+      if (sortBy === "price-desc") return (vb ? Number(vb.price) : 0) - (va ? Number(va.price) : 0);
+      if (sortBy === "stock-asc") return (va?.stock ?? 0) - (vb?.stock ?? 0);
+      return a.name.localeCompare(b.name);
+    });
+    return list;
+  }, [products, search, categoryFilter, sizeFilter, sortBy]);
 
   const startNew = () => { setEditing("new"); setForm({ ...emptyForm, category: categories[0]?.id ?? "" }); setUploadError(null); };
   const startEdit = (p) => {
@@ -59,22 +91,26 @@ export default function AdminProducts() {
   };
 
   const save = async () => {
+    // stock is optional — omit it entirely when blank instead of sending ""
+    // (an empty string fails integer validation; omitting it lets the
+    // database default of 0 apply, the same as if it were never set).
+    const variantPayload = {
+      size: form.size, price: form.price, sale_price: form.sale_price || null,
+      ...(form.stock !== "" ? { stock: form.stock } : {}),
+    };
     if (editing === "new") {
       const { data: product } = await client.post("/catalog/products/", {
         name: form.name, category: form.category, description: form.description, image_url: form.image_url,
       });
       await client.post("/catalog/variants/", {
-        product: product.id, size: form.size, sku: `SKU-${Date.now()}`,
-        price: form.price, stock: form.stock, sale_price: form.sale_price || null,
+        product: product.id, sku: `SKU-${Date.now()}`, ...variantPayload,
       });
     } else {
       await client.patch(`/catalog/products/${editing}/`, {
         name: form.name, category: form.category, description: form.description, image_url: form.image_url,
       });
       if (form.variantId) {
-        await client.patch(`/catalog/variants/${form.variantId}/`, {
-          size: form.size, price: form.price, stock: form.stock, sale_price: form.sale_price || null,
-        });
+        await client.patch(`/catalog/variants/${form.variantId}/`, variantPayload);
       }
     }
     setEditing(null);
@@ -86,8 +122,42 @@ export default function AdminProducts() {
   return (
     <div>
       <div className="flex justify-between items-center mb-3.5">
-        <h3 className="font-display m-0">Products ({products.length})</h3>
+        <h3 className="font-display m-0">Products ({visible.length}{visible.length !== products.length ? ` of ${products.length}` : ""})</h3>
         <button onClick={startNew} className="px-4 py-2 rounded-lg bg-red text-white text-sm font-semibold">+ Add Product</button>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2.5 mb-4 bg-cream/60 rounded-lg px-3 py-2.5">
+        <div className="flex items-center bg-white rounded-lg px-2.5 py-1.5 border border-gray-300">
+          <Search size={14} className="text-mute shrink-0" />
+          <input
+            placeholder="Search products..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="ml-1.5 text-sm outline-none border-none min-w-[140px]"
+          />
+        </div>
+        <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="text-sm border border-gray-300 rounded-lg px-2.5 py-1.5 bg-white">
+          <option value="">All categories</option>
+          {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+        </select>
+        <select value={sizeFilter} onChange={(e) => setSizeFilter(e.target.value)} className="text-sm border border-gray-300 rounded-lg px-2.5 py-1.5 bg-white">
+          <option value="">All sizes</option>
+          {allSizes.map((s) => <option key={s} value={s}>{s}</option>)}
+        </select>
+        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="text-sm border border-gray-300 rounded-lg px-2.5 py-1.5 bg-white">
+          <option value="name">Sort: Name A-Z</option>
+          <option value="price-asc">Sort: Price Low-High</option>
+          <option value="price-desc">Sort: Price High-Low</option>
+          <option value="stock-asc">Sort: Stock Low-High</option>
+        </select>
+        {(search || categoryFilter || sizeFilter) && (
+          <button
+            onClick={() => { setSearch(""); setCategoryFilter(""); setSizeFilter(""); }}
+            className="text-xs text-mute underline"
+          >
+            Clear filters
+          </button>
+        )}
       </div>
 
       {editing && (
@@ -99,7 +169,7 @@ export default function AdminProducts() {
             </select>
             <input placeholder="Size (e.g. 750ml)" value={form.size} onChange={(e) => setForm({ ...form, size: e.target.value })} className="px-2.5 py-2 rounded-lg border border-gray-300 text-sm" />
             <input placeholder="Price" type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} className="px-2.5 py-2 rounded-lg border border-gray-300 text-sm" />
-            <input placeholder="Stock" type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} className="px-2.5 py-2 rounded-lg border border-gray-300 text-sm" />
+            <input placeholder="Stock (optional)" type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} className="px-2.5 py-2 rounded-lg border border-gray-300 text-sm" />
             <input placeholder="Sale price (optional)" type="number" value={form.sale_price} onChange={(e) => setForm({ ...form, sale_price: e.target.value })} className="px-2.5 py-2 rounded-lg border border-gray-300 text-sm" />
             <input placeholder="Description (optional)" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="px-2.5 py-2 rounded-lg border border-gray-300 text-sm col-span-2" />
           </div>
@@ -156,7 +226,7 @@ export default function AdminProducts() {
             </tr>
           </thead>
           <tbody>
-            {products.map((p) => {
+            {visible.map((p) => {
               const v = p.variants?.[0];
               return (
                 <tr key={p.id} className="border-b border-cream">
@@ -181,6 +251,9 @@ export default function AdminProducts() {
                 </tr>
               );
             })}
+            {visible.length === 0 && (
+              <tr><td colSpan={7} className="py-6 text-center text-mute text-sm">No products match these filters.</td></tr>
+            )}
           </tbody>
         </table>
       </div>

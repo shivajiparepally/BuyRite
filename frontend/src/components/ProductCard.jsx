@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { Minus, Plus } from "lucide-react";
 import { CategoryGlyph } from "./CategoryGlyph";
 import { PriceTag } from "./PriceTag";
@@ -54,42 +55,46 @@ export function ProductCard({ product, categoryIndex, onRequireAuth }) {
       }`}
       style={{ transition: "transform 180ms ease-out" }}
     >
-      <div className="relative aspect-[4/5] bg-cream/40 flex items-center justify-center overflow-hidden border-b border-cream">
-        {product.image_url && !imgFailed ? (
-          <img
-            src={product.image_url}
-            alt={product.name}
-            loading="lazy"
-            onError={() => setImgFailed(true)}
-            className={`w-full h-full object-cover transition duration-300 group-hover:scale-105 ${
-              outOfStock ? "grayscale opacity-70" : ""
-            }`}
-          />
-        ) : (
-          <CategoryGlyph slug={slug} index={categoryIndex} size={76} />
-        )}
+      <Link to={`/product/${product.id}`} className="contents">
+        <div className="relative aspect-[4/5] bg-cream/40 flex items-center justify-center overflow-hidden border-b border-cream">
+          {product.image_url && !imgFailed ? (
+            <img
+              src={product.image_url}
+              alt={product.name}
+              loading="lazy"
+              onError={() => setImgFailed(true)}
+              className={`w-full h-full object-cover transition duration-300 group-hover:scale-105 ${
+                outOfStock ? "grayscale opacity-70" : ""
+              }`}
+            />
+          ) : (
+            <CategoryGlyph slug={slug} index={categoryIndex} size={76} />
+          )}
 
-        {save > 0 && !outOfStock && (
-          <span className="absolute top-2 left-2 bg-orange text-white text-[11px] font-bold px-2 py-1 rounded">
-            SAVE ${save.toFixed(2)}
-          </span>
-        )}
-        {outOfStock && (
-          <span className="absolute top-2 left-2 bg-cream text-red text-[11px] font-bold px-2 py-1 rounded-full">
-            Out of Stock
-          </span>
-        )}
-      </div>
+          {save > 0 && !outOfStock && (
+            <span className="absolute top-2 left-2 bg-orange text-white text-[11px] font-bold px-2 py-1 rounded">
+              SAVE ${save.toFixed(2)}
+            </span>
+          )}
+          {outOfStock && (
+            <span className="absolute top-2 left-2 bg-cream text-red text-[11px] font-bold px-2 py-1 rounded-full">
+              Out of Stock
+            </span>
+          )}
+        </div>
+      </Link>
 
       <div className="p-3.5 flex flex-col gap-1 flex-1">
-        <span className="text-[10px] uppercase tracking-wider text-mute">{product.category_name}</span>
-        <h4 className="font-display font-semibold text-ink text-[15px] leading-snug line-clamp-2 min-h-[2.6em] m-0">
-          {product.name}
-        </h4>
-        <span className="text-xs text-mute">{variant.size} · SKU {variant.sku}</span>
-        {product.description && (
-          <p className="text-xs text-mute leading-relaxed line-clamp-2 m-0 mt-0.5">{product.description}</p>
-        )}
+        <Link to={`/product/${product.id}`} className="contents">
+          <span className="text-[10px] uppercase tracking-wider text-mute">{product.category_name}</span>
+          <h4 className="font-display font-semibold text-ink text-[15px] leading-snug line-clamp-2 min-h-[2.6em] m-0">
+            {product.name}
+          </h4>
+          <span className="text-xs text-mute">{variant.size} · SKU {variant.sku}</span>
+          {product.description && (
+            <p className="text-xs text-mute leading-relaxed line-clamp-2 m-0 mt-0.5">{product.description}</p>
+          )}
+        </Link>
 
         <div className="mt-auto pt-2.5">
           <PriceTag price={variant.price} salePrice={variant.sale_price} />

@@ -256,18 +256,17 @@ export default function Home() {
 
             {browsing && (
               <section className="mt-8">
-                <div className="flex items-baseline justify-between mb-3">
+                <div className="flex flex-wrap items-center justify-between gap-y-2 mb-5">
                   <h2 className="font-display text-xl text-ink m-0">{activeName}</h2>
-                  <span className="text-sm text-mute">{filtered.length} item{filtered.length === 1 ? "" : "s"}</span>
+                  <FilterBar
+                    sizes={availableSizes}
+                    selectedSizes={sizeFilter}
+                    onToggleSize={toggleSize}
+                    onClearSizes={() => setSizeFilter([])}
+                    sortBy={sortBy}
+                    onSortChange={setSortBy}
+                  />
                 </div>
-                <FilterBar
-                  sizes={availableSizes}
-                  selectedSizes={sizeFilter}
-                  onToggleSize={toggleSize}
-                  onClearSizes={() => setSizeFilter([])}
-                  sortBy={sortBy}
-                  onSortChange={setSortBy}
-                />
                 <div className="grid gap-4" style={gridStyle}>
                   {filtered.map((p, i) => (
                     <Reveal key={p.id} delay={(i % 8) * 0.05}>

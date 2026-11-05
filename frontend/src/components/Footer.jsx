@@ -55,7 +55,7 @@ export function Footer({ categories = [], onCategory }) {
 
       <div className="border-t border-white/10">
         <div className="max-w-6xl mx-auto px-6 py-4 text-[11px] text-[#C9B4AC] flex flex-col sm:flex-row gap-1.5 sm:justify-between">
-          <span>© {new Date().getFullYear()} North Brunswick Bottle Shop. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} Buy Rite Renaissance Spirits. All rights reserved.</span>
           <span>You must be 21 or older to purchase. Please drink responsibly.</span>
         </div>
       </div>

@@ -8,9 +8,9 @@ const SORTS = [
   { value: "name", label: "Name: A-Z" },
 ];
 
-export function FilterBar({ sizes, selectedSizes, onToggleSize, onClearSizes, sortBy, onSortChange }) {
+export function FilterBar({ sizes, selectedSizes, onToggleSize, onClearSizes, sortBy, onSortChange, className = "" }) {
   return (
-    <div className="flex flex-wrap items-center gap-x-5 gap-y-2.5 mb-4 bg-white border border-cream rounded-xl px-4 py-3">
+    <div className={`flex flex-wrap items-center gap-x-5 gap-y-2 ${className}`}>
       <div className="flex items-center gap-2">
         <label htmlFor="sort-select" className="text-xs text-mute font-semibold">Sort</label>
         <select

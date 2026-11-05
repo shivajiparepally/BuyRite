@@ -45,9 +45,9 @@ export function Header({
   };
 
   return (
-    <header className="sticky top-0 z-30 shadow-sm">
-      {/* utility strip */}
-      <div className="bg-ink text-cream text-xs">
+    <>
+      {/* utility strip — scrolls away normally */}
+      <header className="bg-ink text-cream text-xs">
         <div className="max-w-6xl mx-auto px-6 h-8 flex items-center justify-between">
           <span className="flex items-center gap-1.5">
             <MapPin size={12} /> North Brunswick, NJ · Pay at pickup
@@ -57,10 +57,17 @@ export function Header({
             <span className="text-[#E8B4A8]">Must be 21+</span>
           </span>
         </div>
-      </div>
+      </header>
 
-      {/* main bar */}
-      <div className="bg-red-dark text-white">
+      {/*
+        main (search) bar — the only part that stays pinned on scroll. This
+        has to be a direct child of a page-length container (not nested
+        inside the thin <header> above) — position:sticky can't stay stuck
+        past the bottom of its own parent, and the utility strip + this bar
+        together aren't tall enough to hold it in place through a long
+        scroll.
+      */}
+      <div className="sticky top-0 z-30 shadow-sm bg-red-dark text-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-2 sm:gap-5">
           <Link
             to="/"
@@ -148,6 +155,6 @@ export function Header({
         onConfirm={doLogout}
         onCancel={() => setConfirmLogout(false)}
       />
-    </header>
+    </>
   );
 }
