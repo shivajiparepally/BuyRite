@@ -41,7 +41,7 @@ export default function Account() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-[#fdf7f6] overflow-x-hidden">
+    <div className="min-h-screen bg-[#fdf7f6]" style={{ overflowX: "clip" }}>
       <div className="bg-red-dark text-white px-6 py-4 flex items-center gap-3.5">
         <button onClick={() => navigate("/")} className="flex items-center gap-1.5 text-white">
           <ArrowLeft size={17} />

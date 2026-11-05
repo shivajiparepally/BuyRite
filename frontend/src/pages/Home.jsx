@@ -10,6 +10,7 @@ import { CartDrawer } from "../components/CartDrawer";
 import { AuthModal } from "../components/AuthModal";
 import { Footer } from "../components/Footer";
 import { OrderCelebration } from "../components/OrderCelebration";
+import { FilterBar } from "../components/FilterBar";
 
 const FEATURES = [
   { icon: Store, title: "Order online, pay at pickup", body: "No card needed up front — settle up at the counter." },
@@ -54,20 +55,25 @@ export default function Home() {
   // Set when a promo carousel slide has specific tagged products — the grid
   // then shows exactly those instead of the slide's whole category.
   const [promoFilter, setPromoFilter] = useState(null); // { ids: Set<number>, title: string } | null
+  const [sizeFilter, setSizeFilter] = useState([]);
+  const [sortBy, setSortBy] = useState("relevance");
 
   const selectCategory = (key) => {
     setPromoFilter(null);
     setActiveCategory(key);
     setSearch("");
+    setSizeFilter([]);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleSearchChange = (value) => {
     setPromoFilter(null);
+    setSizeFilter([]);
     setSearch(value);
   };
 
   const handlePromoJump = (promo) => {
+    setSizeFilter([]);
     if (promo.products && promo.products.length > 0) {
       setPromoFilter({ ids: new Set(promo.products), title: promo.title });
       setActiveCategory(null);
@@ -77,6 +83,9 @@ export default function Home() {
     }
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  const toggleSize = (size) =>
+    setSizeFilter((prev) => (prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]));
 
   useEffect(() => {
     Promise.all([
@@ -94,8 +103,13 @@ export default function Home() {
   }, []);
 
   const onSale = (p) => p.variants?.[0]?.sale_price != null;
+  const effectivePrice = (p) => {
+    const v = p.variants?.[0];
+    return v ? Number(v.sale_price ?? v.price) : 0;
+  };
 
-  const filtered = useMemo(() => {
+  // category/search/promo scope — before size filtering and sorting
+  const scoped = useMemo(() => {
     if (promoFilter) return products.filter((p) => promoFilter.ids.has(p.id));
     return products.filter((p) => {
       if (activeCategory === "deals") {
@@ -107,6 +121,29 @@ export default function Home() {
       return true;
     });
   }, [products, activeCategory, search, promoFilter]);
+
+  const availableSizes = useMemo(() => {
+    const sizes = new Set();
+    scoped.forEach((p) => {
+      const s = p.variants?.[0]?.size;
+      if (s) sizes.add(s);
+    });
+    return Array.from(sizes).sort();
+  }, [scoped]);
+
+  const filtered = useMemo(() => {
+    let list = sizeFilter.length > 0 ? scoped.filter((p) => sizeFilter.includes(p.variants?.[0]?.size)) : scoped;
+    if (sortBy !== "relevance") {
+      list = [...list].sort((a, b) => {
+        if (sortBy === "price-asc") return effectivePrice(a) - effectivePrice(b);
+        if (sortBy === "price-desc") return effectivePrice(b) - effectivePrice(a);
+        if (sortBy === "newest") return new Date(b.created_at) - new Date(a.created_at);
+        if (sortBy === "name") return a.name.localeCompare(b.name);
+        return 0;
+      });
+    }
+    return list;
+  }, [scoped, sizeFilter, sortBy]);
 
   const deals = useMemo(() => products.filter(onSale).slice(0, 8), [products]);
   const showDealsRail = !search && activeCategory == null && !promoFilter && deals.length > 0;
@@ -149,7 +186,7 @@ export default function Home() {
   const gridStyle = { gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))" };
 
   return (
-    <div className="min-h-screen bg-[#fdf7f6] font-sans text-ink flex flex-col overflow-x-hidden">
+    <div className="min-h-screen bg-[#fdf7f6] font-sans text-ink flex flex-col" style={{ overflowX: "clip" }}>
       {banner && <OrderCelebration message={banner} onDone={() => setBanner(null)} />}
 
       <Header
@@ -218,13 +255,21 @@ export default function Home() {
                   <h2 className="font-display text-xl text-ink m-0">{activeName}</h2>
                   <span className="text-sm text-mute">{filtered.length} item{filtered.length === 1 ? "" : "s"}</span>
                 </div>
+                <FilterBar
+                  sizes={availableSizes}
+                  selectedSizes={sizeFilter}
+                  onToggleSize={toggleSize}
+                  onClearSizes={() => setSizeFilter([])}
+                  sortBy={sortBy}
+                  onSortChange={setSortBy}
+                />
                 <div className="grid gap-4" style={gridStyle}>
                   {filtered.map((p, i) => (
                     <ProductCard key={p.id} product={p} categoryIndex={i} onRequireAuth={requireAuth} />
                   ))}
                 </div>
                 {catalogLoaded && filtered.length === 0 && (
-                  <p className="text-mute text-sm">No products match your search.</p>
+                  <p className="text-mute text-sm">No products match your search or filters.</p>
                 )}
               </section>
             )}

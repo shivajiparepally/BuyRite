@@ -45,7 +45,7 @@ export function Header({
   };
 
   return (
-    <header>
+    <header className="sticky top-0 z-30 shadow-sm">
       {/* utility strip */}
       <div className="bg-ink text-cream text-xs">
         <div className="max-w-6xl mx-auto px-6 h-8 flex items-center justify-between">
@@ -62,7 +62,11 @@ export function Header({
       {/* main bar */}
       <div className="bg-red-dark text-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-2 sm:gap-5">
-          <Link to="/" className="flex items-center shrink-0">
+          <Link
+            to="/"
+            onClick={() => setActiveCategory?.(null)}
+            className="flex items-center shrink-0"
+          >
             <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Buy Rite Renaissance Spirits" className="h-9 sm:h-12 w-auto rounded-md" />
           </Link>
 
