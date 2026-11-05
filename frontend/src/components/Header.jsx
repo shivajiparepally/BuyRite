@@ -4,6 +4,7 @@ import { Search, ShoppingCart, LogOut, User, MapPin, Settings } from "lucide-rea
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import { ConfirmModal } from "./ConfirmModal";
+import { CategoryShelf } from "./CategoryShelf";
 
 function todayHoursLabel(hours) {
   if (!hours?.length) return null;
@@ -41,23 +42,6 @@ export function Header({
     setConfirmLogout(false);
     logout();
     navigate("/");
-  };
-
-  const navItem = (key, label, opts = {}) => {
-    const active = activeCategory === key;
-    return (
-      <button
-        key={key ?? "all"}
-        onClick={() => setActiveCategory?.(key)}
-        className={`whitespace-nowrap px-1 py-3 text-sm border-b-2 transition ${
-          active
-            ? "border-red text-red font-semibold"
-            : `border-transparent ${opts.accent ? "text-orange" : "text-ink"} hover:text-red`
-        }`}
-      >
-        {label}
-      </button>
-    );
   };
 
   return (
@@ -144,14 +128,10 @@ export function Header({
         </div>
       </div>
 
-      {/* department nav */}
+      {/* department "shelf" nav */}
       {setActiveCategory && (
-        <nav className="bg-white border-b border-cream">
-          <div className="max-w-6xl mx-auto px-6 flex items-center gap-5 overflow-x-auto">
-            {navItem(null, "All Products")}
-            {categories.map((c) => navItem(c.id, c.name))}
-            {navItem("deals", "Deals", { accent: true })}
-          </div>
+        <nav aria-label="Shop by category">
+          <CategoryShelf categories={categories} active={activeCategory} onSelect={setActiveCategory} />
         </nav>
       )}
 
